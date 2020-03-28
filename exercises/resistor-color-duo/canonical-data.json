@@ -27,6 +27,14 @@
       "expected": 47
     },
     {
+      "description": "Green and red",
+      "property": "value",
+      "input": {
+        "colors": ["green", "red"]
+      },
+      "expected": 52
+    },
+    {
       "description": "Orange and orange",
       "property": "value",
       "input": {
