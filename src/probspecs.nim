@@ -1,4 +1,4 @@
-import json, os, uuids
+import algorithm, json, os, sequtils, tables, uuids
 
 type
   CanonicalData = object
@@ -20,9 +20,6 @@ iterator walkCanonicalData: CanonicalData =
 proc writeFile(canonicalData: CanonicalData): void =
   writeFile(canonicalData.file, canonicalData.json.pretty() & "\n")
 
-proc format(canonicalData: CanonicalData): void =
-  canonicalData.writeFile()
-
 proc testCases(node: JsonNode): seq[JsonNode] =
   for testCase in node["cases"].getElems():
     if testCase.hasKey("cases"):
@@ -33,13 +30,24 @@ proc testCases(node: JsonNode): seq[JsonNode] =
 proc testCases(canonicalData: CanonicalData): seq[JsonNode] =
   canonicalData.json.testCases()
 
-proc addMissing(canonicalData: CanonicalData): void =
+proc addUUids(canonicalData: CanonicalData): void =
   for testCase in canonicalData.testCases:
     if not testCase.hasKey("uuid"):
       testCase["uuid"] = % $genUUID()
 
-  writeFile(canonicalData.file, canonicalData.json.pretty() & "\n")
+proc orderFields(canonicalData: CanonicalData): void =
+  for testCase in canonicalData.testCases:
+    let fields = testCase.getFields()
+
+    for key, _ in fields:
+      testCase.delete(key)
+
+    # TODO: use correct sorting
+    for key in toSeq(fields.keys).sorted:
+      testCase[key] = fields[key]
 
 when isMainModule:
   for canonicalData in walkCanonicalData():
-    canonicalData.addMissing()
+    canonicalData.addUUids()
+    canonicalData.orderFields()
+    canonicalData.writeFile()
