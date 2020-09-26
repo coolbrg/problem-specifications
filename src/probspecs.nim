@@ -36,15 +36,17 @@ proc addUUids(canonicalData: CanonicalData): void =
       testCase["uuid"] = % $genUUID()
 
 proc orderFields(canonicalData: CanonicalData): void =
+  const expectedFieldOrder = ["uuid", "description", "comments", "property", "input", "expected", "scenarios"]
+
   for testCase in canonicalData.testCases:
     let fields = testCase.getFields()
 
     for key, _ in fields:
       testCase.delete(key)
 
-    # TODO: use correct sorting
-    for key in toSeq(fields.keys).sorted:
-      testCase[key] = fields[key]
+    for key in expectedFieldOrder:
+      if key in fields:
+        testCase[key] = fields[key]
 
 when isMainModule:
   for canonicalData in walkCanonicalData():
