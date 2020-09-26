@@ -1,4 +1,4 @@
-import algorithm, json, os, sequtils, tables, uuids
+import json, os, sequtils, strformat, tables, uuids
 
 type
   CanonicalData = object
@@ -48,8 +48,17 @@ proc orderFields(canonicalData: CanonicalData): void =
       if key in fields:
         testCase[key] = fields[key]
 
+proc verifyFields(canonicalData: CanonicalData): void =
+  const requiredFields = ["uuid", "description", "property", "input", "expected"]
+
+  for testCase in canonicalData.testCases:
+    for requiredField in requiredFields:
+      if requiredField notin toSeq(testCase.keys):
+        echo &"Test case is missing required field: {requiredField}"
+
 when isMainModule:
   for canonicalData in walkCanonicalData():
-    canonicalData.addUUids()
-    canonicalData.orderFields()
-    canonicalData.writeFile()
+    # canonicalData.addUUids()
+    # canonicalData.orderFields()
+    # canonicalData.writeFile()
+    # canonicalData.verifyFields()
